@@ -1,0 +1,22 @@
+{
+  "name": "DeepSeek Web Assistant",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "postCreateCommand": "pip install -r requirements.txt",
+  "features": {
+    // 添加这一行来安装 Conda
+    // "ghcr.io/devcontainers-contrib/features/conda:1": {}
+
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python"]
+    }
+  },
+  "portsAttributes": {
+    "8501": {
+      "label": "Streamlit App",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
