@@ -1,36 +1,87 @@
 # 🤖 DeepSeek 智能代码助手
 
-> **"基于 Dev Containers 的云端开发环境与 DeepSeek 大模型API的项目"**
+> **零配置、高性能的AI代码开发伴侣**  
+> 基于DeepSeek大模型API + Streamlit + Dev Containers的现代化开发体验
 
-本项目是一个现代化的 AI 代码助手，旨在为你提供一个**无需配置环境**、**开箱即用**的本地化开发体验。无论你是 Python 新手还是资深工程师，只需一键启动，即可享受 DeepSeek 模型带来的极速代码生成与解释服务。
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.32%2B-green)](https://streamlit.io)
+[![License](https://img.shields.io/badge/License-MIT-orange)](LICENSE)
 
----
+## 🌟 核心特性
 
-## 🚀 核心特性
+### 🐳 **一键部署的开发环境**
+- **零配置启动**：Docker容器封装所有依赖，无需手动安装
+- **跨平台支持**：Windows/macOS/Linux 无缝运行
+- **自动依赖管理**：容器启动时自动安装Python 3.11及项目依赖
 
-### 🐳 极致的环境管理 (Dev Containers)
-告别繁琐的环境配置！本项目利用 Docker 容器技术，封装了所有依赖：
-*   **基础环境**: Python 3.11 (官方镜像)
-*   **开发工具**: 内置 GitHub CLI，支持直接管理代码仓库
-*   **自动化**: 容器启动后自动安装依赖，无需手动 `pip install`
+### 💬 **智能交互体验**
+- **实时流式对话**：AI回复采用打字机效果，提升交互体验
+- **性能洞察面板**：实时监控API调用耗时、Token消耗，助您优化提示词
+- **响应式设计**：完美适配桌面和移动设备
+- **端口冲突自动处理**：智能检测并切换可用端口
 
-### 🌐 智能交互界面 (Streamlit)
-*   **实时聊天**: 支持流式输出（打字机效果），低延迟交互。
-*   **性能监控**: 独特的侧边栏面板，实时记录 API 调用耗时与 Token 消耗，帮助你优化提示词。
-*   **响应式设计**: 适配桌面与移动端浏览。
+### ⚡ **专业级AI能力**
+- **代码专项优化**：深度集成DeepSeek最新`deepseek-chat`模型
+- **安全凭证管理**：API密钥通过环境变量隔离，保障账户安全
+- **上下文感知**：完整的对话历史管理，支持复杂代码任务
 
-### ⚡ 强大的后端支持 (DeepSeek API)
-*   **高性能模型**: 对接 DeepSeek 最新 `deepseek-chat` 模型，专为代码生成优化。
-*   **安全隔离**: API Key 通过环境变量管理，保障账户安全。
+## 🛠️ 快速开始
 
----
+### 前置条件
+- **VS Code** + [Dev Containers扩展](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- **Docker Desktop** (最新版本)
+- **DeepSeek API账户** (获取API密钥)
+
+### 安装步骤
+```bash
+# 1. 克隆仓库
+git clone https://github.com/sueyourzan/code_assistant.git
+cd code_assistant
+
+# 2. 在VS Code中打开项目
+code .
+
+# 3. VS Code会提示"Reopen in Container"，点击确认
+# 4. 配置API密钥（选择一种方式）：
+#   方式1：创建.env文件
+echo "DEEPSEEK_API_KEY=your_api_key_here" > .env
+
+#   方式2：设置环境变量
+#   export DEEPSEEK_API_KEY=your_api_key_here
+
+# 5. 使用启动器运行应用
+python run.py
+```
+
+### 备用启动方式
+```bash
+# 直接使用Streamlit启动
+streamlit run main.py --server.port=8501
+
+# 指定不同端口
+python run.py --port 9000
+```
 
 ## 📂 项目结构
-
 ```bash
 .
-├── .devcontainer/          # Docker 容器配置目录
-│   └── devcontainer.json   # 定义基础镜像、工具安装及自动化脚本
-├── main.py                 # Streamlit 主程序 (包含 UI 与 API 调用逻辑)
-├── requirements.txt        # Python 依赖列表
-└── .env                    # (可选) 本地环境变量文件
+├── .devcontainer/           # Docker容器配置
+│   ├── devcontainer.json    # 容器定义和工具配置
+│   └── Dockerfile           # 自定义镜像构建文件
+├── main.py                  # Streamlit核心应用
+├── run.py                   # 智能启动器（端口检测、环境验证）
+├── requirements.txt         # Python依赖列表
+├── .env.example             # 环境变量模板
+├── .gitignore               # Git忽略规则
+├── LICENSE                  # MIT许可证
+└── README.md                # 项目文档
+```
+
+### .env.example 
+```bash
+# DeepSeek API密钥
+DEEPSEEK_API_KEY=your_api_key_here
+
+# 可选配置
+MODEL_TEMPERATURE=0.3
+STREAMLIT_SERVER_PORT=8501

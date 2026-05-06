@@ -1,22 +1,33 @@
 {
-  "name": "DeepSeek Web Assistant",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
-  "postCreateCommand": "pip install -r requirements.txt",
+  "name": "DeepSeek Code Assistant",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+  "runArgs": [
+    "--memory=4g",
+    "--cpus=4"
+  ],
+  "mounts": [
+    "source=${localWorkspaceFolder}/.cache/pip,target=/root/.cache/pip,type=bind"
+  ],
   "features": {
-    // 添加这一行来安装 Conda
-    // "ghcr.io/devcontainers-contrib/features/conda:1": {}
-
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
   },
   "customizations": {
     "vscode": {
-      "extensions": ["ms-python.python"]
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "streamlit.streamlit"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.analysis.autoSearchPaths": false,
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
     }
   },
-  "portsAttributes": {
-    "8501": {
-      "label": "Streamlit App",
-      "onAutoForward": "openBrowser"
-    }
-  }
+  "postCreateCommand": "pip install --no-cache-dir -r requirements.txt",
+  "remoteUser": "vscode"
 }
