@@ -65,11 +65,12 @@ with st.sidebar:
     if st.session_state.perf_logs:
         # 倒序显示，最新的在最上面
         for log in reversed(st.session_state.perf_logs):
-            with st.expander(f"🕒 {log['time']} ({log['total_cost_s']}s)"):
-                st.write(f"**提问**: {log['user_query'][:30]}...")
-                st.write(f"- 首字延迟: {log['first_token_delay_s']}s")
-                st.write(f"- 总耗时: {log['total_cost_s']}s")
-                st.write(f"- 模型: {log['model']}")
+            with st.expander(f"🕒 {log['time']} | ⚡ {log['first_token_delay_s']}s | 📝 {log['total_tokens']} Tokens"):
+                st.write(f"**📝 提问**: {log['user_query'][:30]}...")
+                st.write(f"- **⏱️ 总耗时**: {log['total_cost_s']}s")
+                st.write(f"- **🔤 模型**: {log['model']}")
+                st.write(f"- **📥 输入**: {log['prompt_tokens']} tokens")
+                st.write(f"- **📤 输出**: {log['completion_tokens']} tokens")
     else:
         st.info("暂无历史记录")
 
@@ -121,18 +122,31 @@ if prompt := st.chat_input("请输入代码问题..."):
                 stream=True,
                 temperature=temperature 
             )
-            
+            # --- 初始化变量 ---
+            full_response = ""
+            total_prompt_tokens = 0
+            total_completion_tokens = 0
+            first_token_time = None # 在这里初始化，防止后续报错
+            request_start_time = time.time() # 确保开始时间在流式请求前
+
             # 逐字显示回复
             for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    # 记录第一个字生成的时间点
+                delta_content = chunk.choices[0].delta.content
+                if delta_content is not None:
+                    full_response += delta_content
+                    # 第一个字到达时记录时间
                     if first_token_time is None:
                         first_token_time = time.time()
-                        
-                    full_response += chunk.choices[0].delta.content
                     message_placeholder.markdown(full_response + "▌")
-            
+                 
+                # 计算token数量（如果API返回了usage字段）      
+                if hasattr(chunk, 'usage') and chunk.usage is not None:
+                    total_prompt_tokens = chunk.usage.prompt_tokens
+                    total_completion_tokens = chunk.usage.completion_tokens        
+
+            # 最后一次更新，去掉闪烁的光标        
             message_placeholder.markdown(full_response)
+            
             
             # ⏱️ 记录结束时间
             total_cost = round(time.time() - request_start_time, 3)
@@ -146,9 +160,12 @@ if prompt := st.chat_input("请输入代码问题..."):
                 "time": current_time,
                 "model": "deepseek-chat",
                 "user_query": prompt,
-                "llm_reply": full_response, # 注意：如果回复很长，日志文件会变得很大
+                "llm_reply": full_response[:500] + "...",  # 只保存前500字符预览
                 "first_token_delay_s": first_token_delay,
-                "total_cost_s": total_cost
+                "total_cost_s": total_cost,
+                "prompt_tokens": total_prompt_tokens,
+                "completion_tokens": total_completion_tokens,
+                "total_tokens": total_prompt_tokens + total_completion_tokens
             }
             
             # 1. 保存到内存
@@ -162,6 +179,8 @@ if prompt := st.chat_input("请输入代码问题..."):
             # 刷新侧边栏以显示新日志
             st.rerun() 
 
+
+        # 报错处理
         except Exception as e:
             st.error("🔴 API 调用失败")
             st.markdown(f"**错误详情**: {e}")
