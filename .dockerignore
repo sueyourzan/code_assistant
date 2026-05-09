@@ -1,12 +1,8 @@
-.git
-.gitignore
 __pycache__
 *.pyc
-*.pyo
-*.pyd
+.env
 .venv
-env
-.egg-info
-dist
-build
-.cache
+.git
+.gitignore
+.DS_Store
+performance_log.json

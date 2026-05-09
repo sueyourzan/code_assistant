@@ -1,12 +1,12 @@
 {
   "name": "DeepSeek Code Assistant",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+  "image": "mcr.azure.cn/devcontainers/python:3.11-bullseye",
   "runArgs": [
     "--memory=4g",
     "--cpus=4"
   ],
-  "mounts": [
-    "source=${localWorkspaceFolder}/.cache/pip,target=/root/.cache/pip,type=bind"
+  "mounts": [    
+    "source=pip-cache,target=/home/vscode/.cache/pip,type=volume"
   ],
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
@@ -24,10 +24,17 @@
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "python.analysis.autoSearchPaths": false,
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.terminal.executeInFileDir": true
       }
     }
   },
+  "containerEnv": {
+    "PYTHONNOUSERSITE": "1",
+    "PIP_INDEX_URL": "https://pypi.tuna.tsinghua.edu.cn/simple",
+    "PIP_TRUSTED_HOST": "pypi.tuna.tsinghua.edu.cn"
+  },
   "postCreateCommand": "pip install --no-cache-dir -r requirements.txt",
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+  "postAttachCommand": "sudo usermod -aG python vscode || true && newgrp python"
 }

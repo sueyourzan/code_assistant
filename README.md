@@ -53,6 +53,7 @@ echo "DEEPSEEK_API_KEY=your_api_key_here" > .env
 python run.py
 ```
 
+
 ### 备用启动方式
 ```bash
 # 直接使用Streamlit启动
@@ -60,6 +61,10 @@ streamlit run main.py --server.port=8501
 
 # 指定不同端口
 python run.py --port 9000
+```
+### 结束应用
+```bash
+#快捷键 CTRL + C
 ```
 
 ## 📂 项目结构
