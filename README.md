@@ -49,6 +49,8 @@ echo "DEEPSEEK_API_KEY=your_api_key_here" > .env
 #   方式2：设置环境变量
 #   export DEEPSEEK_API_KEY=your_api_key_here
 
+# 切换python环境为.venv
+
 # 5. 使用启动器运行应用
 python run.py
 ```
