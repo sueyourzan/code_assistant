@@ -1,40 +1,25 @@
-# 1. 基础镜像：使用 Azure 中国镜像源加速拉取
-# 对应 devcontainer.json 中的 "image": "mcr.azure.cn/devcontainers/python:3.11-bullseye"
+# 1. 基础镜像
 FROM mcr.azure.cn/devcontainers/python:3.11-bullseye
 
-# 2. 设置环境变量：配置 pip 使用清华源
-# 对应 containerEnv 字段，加速国内 Python 包下载
+# 2. 设置环境变量（清华源加速）
+# 这里不需要设置 PYTHONNOUSERSITE，除非你有特殊需求
 ENV PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple \
-    PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn \
-    # 对应 containerEnv.PYTHONNOUSERSITE
-    PYTHONNOUSERSITE=1
+    PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
 
-# 3. 配置非 root 用户 (vscode)
-# 对应 devcontainer.json 中的 "remoteUser": "vscode"
-# 镜像中通常已预创建该用户，这里确保环境归属
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_GID
+# 3. 切换到非 root 用户
+# 注意：这里先不切换，因为 COPY 和 pip install 最好在 root 下做，或者确保目录存在
+# 我们利用 Feature 来处理用户，或者在安装完依赖后再切换
 
-# 4. 复制项目文件
-# 将本地代码复制到容器内的工作目录
-# 注意：devcontainer 默认工作目录通常为 /workspaces/<repo-name> 或 /home/vscode
-WORKDIR /home/${USERNAME}
-
-# 5. 安装依赖
-# 对应 postCreateCommand
-# 注意：requirements.txt 需要与 Dockerfile 在同一目录下
+# 4. 复制代码并安装依赖 (在 root 权限下安装，避免权限问题)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6. 切换到非 root 用户运行
-# 对应 remoteUser 设置
-USER ${USERNAME}
+# 5. 切换到非 root 用户（放在最后）
+USER vscode
 
-# 7. 暴露端口
-# Streamlit 默认端口
+# 6. 设置工作目录
+WORKDIR /home/vscode
+
+# 7. 其他指令
 EXPOSE 8501
-
-# 8. 启动命令
-# 对应之前的 Streamlit 启动逻辑
 CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]

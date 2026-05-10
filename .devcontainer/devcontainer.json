@@ -1,19 +1,25 @@
 {
   "name": "DeepSeek Code Assistant",
-  // 1. 移除 image，改用 build 指定 Dockerfile
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "image": "mcr.azure.cn/devcontainers/python:3.11-bullseye",
   "runArgs": [
     "--memory=4g",
     "--cpus=4"
   ],
-  "mounts": [    
+  "mounts": [
+    // 核心修复：使用命名卷挂载缓存目录
+    // Docker 会自动创建该卷，并将其所有权赋予容器内的当前用户 (vscode)
     "source=pip-cache,target=/home/vscode/.cache/pip,type=volume"
   ],
-  // 2. 移除 Python 和 Git 的 Features，因为 Dockerfile 已经处理了
-  // Git 通常在基础镜像中已包含，无需重复安装
-  "features": {},
+  // 删除或注释掉下面这部分
+  // "features": {
+  //   "ghcr.io/devcontainers/features/python:1": {
+  //     "version": "3.11"
+  //   },
+  //   "ghcr.io/devcontainers/features/git:1": {}
+  // },
+  "features": {
+      "ghcr.io/devcontainers/features/git:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -22,22 +28,15 @@
         "streamlit.streamlit"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "python.analysis.autoSearchPaths": false,
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "python.terminal.executeInFileDir": true
+        "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   },
-  // 3. 环境变量保留在这里或 Dockerfile 的 ENV 中均可
   "containerEnv": {
-    "PYTHONNOUSERSITE": "1",
-    "PIP_INDEX_URL": "https://pipy.tuna.tsinghua.edu.cn/simple",
-    "PIP_TRUSTED_HOST": "pipy.tuna.tsinghua.edu.cn"
+    "PIP_INDEX_URL": "https://pypi.tuna.tsinghua.edu.cn/simple",
+    "PIP_TRUSTED_HOST": "pypi.tuna.tsinghua.edu.cn"
   },
-  // 4. 移除 postCreateCommand，因为 Dockerfile 的 RUN 已经安装了依赖
-  // "postCreateCommand": "..." // 删除此行
+  "postCreateCommand": "python -m venv /home/vscode/.venv && /home/vscode/.venv/bin/pip install --no-cache-dir -r requirements.txt",
   "remoteUser": "vscode"
-  // 5. 移除 postAttachCommand，避免用户组冲突
-  // "postAttachCommand": "..." // 删除此行
 }
