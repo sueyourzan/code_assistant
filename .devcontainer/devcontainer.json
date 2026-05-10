@@ -1,6 +1,9 @@
 {
   "name": "DeepSeek Code Assistant",
-  "image": "mcr.azure.cn/devcontainers/python:3.11-bullseye",
+  // 1. 移除 image，改用 build 指定 Dockerfile
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "runArgs": [
     "--memory=4g",
     "--cpus=4"
@@ -8,12 +11,9 @@
   "mounts": [    
     "source=pip-cache,target=/home/vscode/.cache/pip,type=volume"
   ],
-  "features": {
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    },
-    "ghcr.io/devcontainers/features/git:1": {}
-  },
+  // 2. 移除 Python 和 Git 的 Features，因为 Dockerfile 已经处理了
+  // Git 通常在基础镜像中已包含，无需重复安装
+  "features": {},
   "customizations": {
     "vscode": {
       "extensions": [
@@ -29,12 +29,15 @@
       }
     }
   },
+  // 3. 环境变量保留在这里或 Dockerfile 的 ENV 中均可
   "containerEnv": {
     "PYTHONNOUSERSITE": "1",
-    "PIP_INDEX_URL": "https://pypi.tuna.tsinghua.edu.cn/simple",
-    "PIP_TRUSTED_HOST": "pypi.tuna.tsinghua.edu.cn"
+    "PIP_INDEX_URL": "https://pipy.tuna.tsinghua.edu.cn/simple",
+    "PIP_TRUSTED_HOST": "pipy.tuna.tsinghua.edu.cn"
   },
-  "postCreateCommand": "pip install --no-cache-dir -r requirements.txt",
-  "remoteUser": "vscode",
-  "postAttachCommand": "sudo usermod -aG python vscode || true && newgrp python"
+  // 4. 移除 postCreateCommand，因为 Dockerfile 的 RUN 已经安装了依赖
+  // "postCreateCommand": "..." // 删除此行
+  "remoteUser": "vscode"
+  // 5. 移除 postAttachCommand，避免用户组冲突
+  // "postAttachCommand": "..." // 删除此行
 }
